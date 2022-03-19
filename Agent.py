@@ -59,7 +59,8 @@ class TDLambda:
             self.episode.append(Step(stateTuple, action, reward))
         
         self.policyEval()
-        self.printValues()
+        self.updateNextStates()
+        #self.printValues()
     
     def printEpisode(self) -> None:
         print("Episode length: " + str(len(self.episode)))
@@ -78,6 +79,10 @@ class TDLambda:
             for v in self.policy.values():
                 v.updateValuePreDelta(self.alpha, delta)
                 v.updateElig(self.gamma, self.lam, False)
+    
+    def updateNextStates(self) -> None:
+        for i in range(0, len(self.episode) - 1):
+            self.policy[self.episode[i].getState()].addNextState(self.episode[i].getAction(), self.episode[i].getState())
 
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
@@ -94,5 +99,9 @@ class TDLambda:
 
 if __name__ == "__main__":
     agent = TDLambda(0.6, 0.05, 0.9)
-    agent.runSeries(100)
-    agent.close()
+
+    try:
+        agent.runSeries(100)
+        agent.close()
+    except KeyboardInterrupt:
+        print("Closed!")

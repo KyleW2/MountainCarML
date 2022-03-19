@@ -13,8 +13,8 @@ class State:
     def __str__(self) -> str:
         return "(" + str(self.position) + ", " + str(self.velocity) + ")"
     
-    def addNextState(self, a: int, s) -> None:
-        if a in self.nextStates.keys():
+    def addNextState(self, a: int, s: tuple) -> None:
+        if a in self.nextStates.keys() and not s == self.nextStates[a]:
             print("Over-writing a states list of next states!!!")
         self.nextStates[a] = s
     
