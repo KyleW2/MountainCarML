@@ -1,3 +1,4 @@
+from graphviz import render
 import gym
 import random
 
@@ -46,7 +47,7 @@ class TDLambda:
             self.policy[state] = State(state[0], state[1])
             return random.choice([0, 1, 2])
     
-    def runEpisode(self) -> None:
+    def runEpisode(self, render = False) -> None:
         self.episode = []
         self.resetElig()
 
@@ -54,13 +55,14 @@ class TDLambda:
         done = False
 
         while not done:
-            self.env.render()
+            if render: 
+                self.env.render()
 
-            pos = round(observation[0], 3)
-            vel = round(observation[1], 3)
+            pos = round(observation[0], 2)
+            vel = round(observation[1], 2)
             stateTuple = (pos, vel)
             #print(stateTuple)
-            
+
             action = self.getNextAction(stateTuple)
             observation, reward, done, info = self.env.step(action)
 
@@ -91,10 +93,19 @@ class TDLambda:
     def updateNextStates(self) -> None:
         for i in range(0, len(self.episode) - 1):
             self.policy[self.episode[i].getState()].addNextState(self.episode[i].getAction(), self.episode[i].getState())
+    
+    def highestPoint(self) -> float:
+        max = -1.0
+        for i in range(0, len(self.episode)):
+            if self.episode[i].getState()[0] > max:
+                max = self.episode[i].getState()[0]
+        
+        return max
 
-    def runSeries(self, episodes: int) -> None:
+    def runSeries(self, episodes: int, render = False) -> None:
         for i in range(0, episodes):
-            self.runEpisode()
+            self.runEpisode(render)
+            print(f"Episode {i}, visited {len(self.policy)} states, ended at {self.highestPoint()}")
             
     def printValues(self):
         for k, v in self.policy.items():
@@ -109,7 +120,7 @@ if __name__ == "__main__":
     agent = TDLambda(0.6, 0.05, 0.9)
 
     try:
-        agent.runSeries(100)
+        agent.runSeries(1000, render = False)
         agent.close()
     except KeyboardInterrupt:
         print("Closed!")
