@@ -28,10 +28,10 @@ class TDLambda:
             v.resetElig()
     
     def getNextAction(self, state: tuple) -> int:
-        # Chance to explore or act greedy
-        if random.random() < (1 - self.epsilon):
         # If we've seen the state then get the action for highest value state 
-            if state in self.policy.keys():
+        if state in self.policy.keys():
+            # Chance to explore or act greedy
+            if random.random() < (1 - self.epsilon):
                 possibles =  self.policy[state].getNextStates()
 
                 if len(possibles) == 0:
@@ -46,11 +46,11 @@ class TDLambda:
                         bestAction = k
                 
                 return bestAction
-            # Otherwise add state to the policy and return a random move
             else:
-                self.policy[state] = State(state[0], state[1])
                 return random.choice([0, 1, 2])
+        # Otherwise add state to the policy and return a random move
         else:
+            self.policy[state] = State(state[0], state[1])
             return random.choice([0, 1, 2])
     
     def runEpisode(self, render = False) -> None:
