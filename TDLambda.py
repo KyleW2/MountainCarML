@@ -5,12 +5,13 @@ from State import State
 from Step import Step
 
 class TDLambda:
-    def __init__(self, lam: float, alpha: float, gamma: float):
+    def __init__(self, lam: float, alpha: float, gamma: float, epsilon: float):
         self.env = gym.make("MountainCar-v0")
         
         self.lam = lam
         self.alpha = alpha
         self.gamma = gamma
+        self.epsilon = epsilon
 
         # Keys: tuple = (pos, vel)
         # Value: State = State()
@@ -27,25 +28,29 @@ class TDLambda:
             v.resetElig()
     
     def getNextAction(self, state: tuple) -> int:
+        # Chance to explore or act greedy
+        if random.random() < (1 - self.epsilon):
         # If we've seen the state then get the action for highest value state 
-        if state in self.policy.keys():
-            possibles =  self.policy[state].getNextStates()
+            if state in self.policy.keys():
+                possibles =  self.policy[state].getNextStates()
 
-            if len(possibles) == 0:
+                if len(possibles) == 0:
+                    return random.choice([0, 1, 2])
+
+                bestAction = 0
+                bestValue = -10000
+
+                for k, v in possibles.items():
+                    if self.policy[v].getValue() > bestValue:
+                        bestValue = self.policy[v].getValue()
+                        bestAction = k
+                
+                return bestAction
+            # Otherwise add state to the policy and return a random move
+            else:
+                self.policy[state] = State(state[0], state[1])
                 return random.choice([0, 1, 2])
-
-            bestAction = 0
-            bestValue = -10000
-
-            for k, v in possibles.items():
-                if self.policy[v].getValue() > bestValue:
-                    bestValue = self.policy[v].getValue()
-                    bestAction = k
-            
-            return bestAction
-        # Otherwise add state to the policy and return a random move
         else:
-            self.policy[state] = State(state[0], state[1])
             return random.choice([0, 1, 2])
     
     def runEpisode(self, render = False) -> None:
@@ -98,7 +103,7 @@ class TDLambda:
     
     def updateNextStates(self) -> None:
         for i in range(0, len(self.episode) - 1):
-            self.policy[self.episode[i].getState()].addNextState(self.episode[i].getAction(), self.episode[i].getState())
+            self.policy[self.episode[i].getState()].addNextState(self.episode[i].getAction(), self.episode[i+1].getState())
     
     def highestPoint(self) -> float:
         max = -1.0
