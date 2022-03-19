@@ -1,19 +1,31 @@
 
 class State:
-    def __init__(self, actions: list, probabilities = None, value = None) -> None:
-        self.e = 0
-        self.actions = {}
-
-        # Disregard this, only here for future use
-        for i in range(0, len(actions)):
-            if probabilities != None:
-                self.actions[actions[i]] = probabilities[i]
-            else:
-                self.actions[actions[i]] = 0.0
-        
+    def __init__(self, position: float, velocity: float) -> None:
+        self.position = position
+        self.velocity = velocity
+        self.e = 0.0
         self.value = 0.0
-        if value != None:
-            self.value = value
+
+        # Keys: int = 0, 1, 2 (the move that lead to the state)
+        # Values: State = State()
+        self.nextStates = {}
+    
+    def __str__(self) -> str:
+        return "(" + str(self.position) + ", " + str(self.velocity) + ")"
+    
+    def getNextAction(self) -> int:
+        bestMove = 0
+
+        for k, v in self.nextStates.items():
+            if v.getValue() > self.nextStates[bestMove].getValue():
+                bestMove = k
+        
+        return bestMove
+    
+    def addNextState(self, a: int, s) -> None:
+        if a in self.nextStates.keys():
+            print("Over-writing a states list of next states!!!")
+        self.nextStates[a] = s
     
     def getValue(self) -> float:
         return self.value
@@ -21,11 +33,11 @@ class State:
     def getElig(self) -> float:
         return self.e
     
-    def updateValue(self, alpha, gamma, reward, next_value) -> None:
+    def updateValue(self, alpha: float, gamma: float, reward: float, next_value: float) -> None:
         delta = reward + (gamma * next_value) - self.value
         self.value = self.value + (alpha * delta * self.e)
 
-    def updateValuePreDelta(self, alpha, delta) -> None:
+    def updateValuePreDelta(self, alpha: float, delta: float) -> None:
         self.value = self.value + (alpha * delta * self.e)
     
     def updateElig(self, gamma: float, lam: float, is_state: bool) -> None:

@@ -1,21 +1,24 @@
+import gym
+import random
+
 from State import State
+from Step import Step
 
 class TDLambda:
-    def __init__(self, lam: float, alpha: float, gamma: float, states: list):
+    def __init__(self, lam: float, alpha: float, gamma: float):
+        self.env = gym.make("MountainCar-v0")
+        
         self.lam = lam
         self.alpha = alpha
         self.gamma = gamma
 
-        # Parse state objects from list of lists
-        self.states = {}
-        for i in range(0, len(states)):
-            actions = []
+        # Keys: tuple = (pos, vel)
+        # Value: State = State()
+        self.policy = {}
 
-            for j in range(0, len(states[i][1])):
-                actions.append(states[i][1][j])
-
-            #print(states[i][0], actions)
-            self.states[states[i][0]] = State(actions)
+        # Class var for induvidual episodes
+        # Reset each time
+        self.episode = []
 
     def getValue(self, state: str) -> float:
         return self.states[state].getValue()
@@ -33,21 +36,48 @@ class TDLambda:
         for k, v in self.states.items():
             v.resetElig()
     
-    def runEpisode(self, episode: list) -> None:
-        # Episodes must go: [[state -> action -> reward], ...]
-        for i in range(0, len(episode)-1):
-            delta = episode[i][2] + (self.gamma * self.states[episode[i+1][0]].getValue()) - self.states[episode[i][0]].getValue()
-            self.updateElig(episode[i][0], True)
+    def getNextAction(self, state: tuple) -> int:
+        if state in self.policy.keys():
+            return self.policy[state].getNextAction()
+        else:
+            return random.choice([0, 1, 2])
+    
+    def runEpisode(self) -> None:
+        self.episode = []
 
-            for k, v in self.states.items():
-                # If the state equals current at time step
-                self.updateValuePreDelta(k, delta)
-                self.updateElig(k, False)
+        observation = self.env.reset()
+        done = False
+
+        while not done:
+            self.env.render()
+
+            stateTuple = (observation[0], observation[1])
+            action = self.getNextAction(stateTuple)
+            observation, reward, done, info = self.env.step(action)
+
+            self.episode.append(Step(stateTuple, action, reward))
+        
+        self.policyEval()
+    
+    def policyEval(self) -> None:
+        print("Episode length: " + str(len(self.episode)))
+
+        for i in range(0, len(self.episode)):
+            print(self.episode[i])
+    
+    def runSeries(self, episodes: int) -> None:
+        for i in range(0, episodes):
+            self.runEpisode()
             
     def printValues(self):
         for k, v in self.states.items():
             print("V(" + k + ") = " + str(v.getValue()))
             print("E(" + k + ") = " + str(v.getElig()))
+    
+    def close(self):
+        self.env.close()
 
 if __name__ == "__main__":
-    agent = TDLambda()
+    agent = TDLambda(0.5, 0.5, 0.5)
+    agent.runSeries(100)
+    agent.close()
