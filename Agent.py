@@ -28,8 +28,12 @@ class TDLambda:
         # If we've seen the state then get the action for highest value state 
         if state in self.policy.keys():
             possibles =  self.policy[state].getNextStates()
+
+            if len(possibles) == 0:
+                return random.choice([0, 1, 2])
+
             bestAction = 0
-            bestValue = self.policy[possibles[0]].getValue()
+            bestValue = -10000
 
             for k, v in possibles.items():
                 if self.policy[v].getValue() > bestValue:
@@ -52,7 +56,11 @@ class TDLambda:
         while not done:
             self.env.render()
 
-            stateTuple = (observation[0], observation[1])
+            pos = round(observation[0], 3)
+            vel = round(observation[1], 3)
+            stateTuple = (pos, vel)
+            #print(stateTuple)
+            
             action = self.getNextAction(stateTuple)
             observation, reward, done, info = self.env.step(action)
 
