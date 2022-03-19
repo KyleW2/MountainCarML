@@ -7,25 +7,19 @@ class State:
         self.value = 0.0
 
         # Keys: int = 0, 1, 2 (the move that lead to the state)
-        # Values: State = State()
+        # Values: tuple = state tuple
         self.nextStates = {}
     
     def __str__(self) -> str:
         return "(" + str(self.position) + ", " + str(self.velocity) + ")"
     
-    def getNextAction(self) -> int:
-        bestMove = 0
-
-        for k, v in self.nextStates.items():
-            if v.getValue() > self.nextStates[bestMove].getValue():
-                bestMove = k
-        
-        return bestMove
-    
     def addNextState(self, a: int, s) -> None:
         if a in self.nextStates.keys():
             print("Over-writing a states list of next states!!!")
         self.nextStates[a] = s
+    
+    def getNextStates(self) -> dict:
+        return self.nextStates
     
     def getValue(self) -> float:
         return self.value

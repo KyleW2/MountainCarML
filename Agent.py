@@ -20,30 +20,31 @@ class TDLambda:
         # Reset each time
         self.episode = []
 
-    def getValue(self, state: str) -> float:
-        return self.states[state].getValue()
-    
-    def updateValue(self, state: str, reward: int, next_state: str) -> None:
-        self.states[state].updateValue(self.alpha, self.gamma, reward, self.states[next_state].getValue())
-    
-    def updateValuePreDelta(self, state: str, delta: float) -> None:
-        self.states[state].updateValuePreDelta(self.alpha, delta)
-    
-    def updateElig(self, state: str, is_state: bool) -> None:
-        self.states[state].updateElig(self.gamma, self.lam, is_state)
-    
     def resetElig(self) -> None:
-        for k, v in self.states.items():
+        for v in self.policy.values():
             v.resetElig()
     
     def getNextAction(self, state: tuple) -> int:
+        # If we've seen the state then get the action for highest value state 
         if state in self.policy.keys():
-            return self.policy[state].getNextAction()
+            possibles =  self.policy[state].getNextStates()
+            bestAction = 0
+            bestValue = self.policy[possibles[0]].getValue()
+
+            for k, v in possibles.items():
+                if self.policy[v].getValue() > bestValue:
+                    bestValue = self.policy[v].getValue()
+                    bestAction = k
+            
+            return bestAction
+        # Otherwise add state to the policy and return a random move
         else:
+            self.policy[state] = State(state[0], state[1])
             return random.choice([0, 1, 2])
     
     def runEpisode(self) -> None:
         self.episode = []
+        self.resetElig()
 
         observation = self.env.reset()
         done = False
@@ -58,26 +59,40 @@ class TDLambda:
             self.episode.append(Step(stateTuple, action, reward))
         
         self.policyEval()
+        self.printValues()
     
-    def policyEval(self) -> None:
+    def printEpisode(self) -> None:
         print("Episode length: " + str(len(self.episode)))
 
         for i in range(0, len(self.episode)):
             print(self.episode[i])
     
+    def policyEval(self) -> None:
+        for i in range(0, len(self.episode) - 1):
+            delta = self.episode[i].getReward()
+            delta += (self.gamma * self.policy[self.episode[i+1].getState()].getValue()) 
+            delta -= self.policy[self.episode[i].getState()].getValue()
+            
+            self.policy[self.episode[i].getState()].updateElig(self.gamma, self.lam, True)
+
+            for v in self.policy.values():
+                v.updateValuePreDelta(self.alpha, delta)
+                v.updateElig(self.gamma, self.lam, False)
+
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
             
     def printValues(self):
-        for k, v in self.states.items():
-            print("V(" + k + ") = " + str(v.getValue()))
-            print("E(" + k + ") = " + str(v.getElig()))
+        for k, v in self.policy.items():
+            print("V(" + str(k) + ") = " + str(v.getValue()))
+            print("E(" + str(k) + ") = " + str(v.getElig()))
+            print()
     
     def close(self):
         self.env.close()
 
 if __name__ == "__main__":
-    agent = TDLambda(0.5, 0.5, 0.5)
+    agent = TDLambda(0.6, 0.05, 0.9)
     agent.runSeries(100)
     agent.close()
