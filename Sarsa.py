@@ -96,6 +96,12 @@ class Sarsa:
             if newState not in self.policy.keys():
                 self.policy[newState] = QState(newPos, newVel)
 
+            # Ensure reward is correct
+            if newPos >= 0.5:
+                reward = 0
+            else:
+                reward = -1
+
             # Choose a' from s'
             newAction = self.eGreey(newState)
 
