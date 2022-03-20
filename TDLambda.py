@@ -1,11 +1,12 @@
 import gym
 import random
+import pickle as pickler
 
 from State import State
 from Step import Step
 
 class TDLambda:
-    def __init__(self, lam: float, alpha: float, gamma: float, epsilon: float):
+    def __init__(self, lam: float, alpha: float, gamma: float, epsilon: float, pickle = False, pickleFile = None, load = False):
         self.env = gym.make("MountainCar-v0")
         
         self.lam = lam
@@ -16,6 +17,21 @@ class TDLambda:
         # Keys: tuple = (pos, vel)
         # Value: State = State()
         self.policy = {}
+        self.pickle = pickle
+
+        if self.pickle:
+            self.pickleFile = pickleFile
+
+            try:
+                f = open(self.pickleFile, "rb")
+            except FileNotFoundError:
+                f = open(self.pickleFile, "w")
+                f.close()
+                f = open(self.pickleFile, "rb")
+
+            if load:
+                self.policy = pickler.load(f)
+            f.close()
 
         # Class var for induvidual episodes
         # Reset each time
@@ -116,7 +132,15 @@ class TDLambda:
     def runSeries(self, episodes: int, render = False) -> None:
         for i in range(0, episodes):
             self.runEpisode(render)
-            print(f"Episode {i}, visited {len(self.policy.keys())} states, total wins are {self.wins}")
+            print(f"Episode {i}, visited {len(self.policy.keys())} states, total wins are {self.wins}, highest point was {self.highestPoint()}")
+        
+        self.savePolicy()
+    
+    def savePolicy(self) -> None:
+        if self.pickle:
+            f = open(self.pickleFile, "wb")
+            pickler.dump(self.policy, f)
+            f.close()
     
     def close(self):
         self.env.close()
