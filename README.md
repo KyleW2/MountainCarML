@@ -8,3 +8,4 @@ A reinforcement learning agent for the OpenAI gym Mountain Car enviroment, using
 - [ ] Fix TD-Lambda
 - [ ] Implment Monte Carlo
 - [ ] Experiment with a larger state space (3 decimal places rather than 2) 
+- [ ] Try a different reward scheme
