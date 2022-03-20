@@ -1,7 +1,8 @@
 from TDLambda import TDLambda
+from Sarsa import Sarsa
 
 if __name__ == "__main__":
-    agent = TDLambda(0.6, 0.05, 0.9, 0.5, render = False, pickle = True, pickleFile = "TD_policy.pickle", load = True)
+    agent = Sarsa(0.5, 0.5, 0.5, render = False, pickle = True, pickleFile = "Sarsa_policy.pickle", load = False)
 
     try:
         agent.runSeries(100000)
