@@ -112,7 +112,7 @@ class Sarsa:
             self.episode.append(Step(stateTuple, action, reward))
 
             # Metrics
-            if reward == 0:
+            if reward == 0 and done:
                 self.wins += 1
             if observation[0] > highest:
                 highest = observation[0]
@@ -122,7 +122,7 @@ class Sarsa:
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
-            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, highest: {self.highestPoint}")
+            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}")
         
         self.savePolicy()
     
