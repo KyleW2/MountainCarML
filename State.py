@@ -34,13 +34,13 @@ class State:
         self.value = self.value + (alpha * delta * self.e)
 
     def updateValuePreDelta(self, alpha: float, delta: float) -> None:
-        self.value = self.value + (alpha * delta * self.e)
+        self.value += (alpha * delta * self.e)
     
     def updateElig(self, gamma: float, lam: float, is_state: bool) -> None:
         if is_state:
             self.e += 1
         else:
-            self.e = gamma * lam * self.e
+            self.e *= gamma * lam
     
     def resetElig(self) -> None:
         self.e = 0
