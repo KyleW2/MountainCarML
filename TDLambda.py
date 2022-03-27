@@ -128,7 +128,7 @@ class TDLambda:
         for i in range(0, episodes):
             self.runEpisode()
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
-            self.epsilon *= 0.9999
+            self.epsilon = 2.718281 ** (-0.25 * self.epsilon)
         
         self.savePolicy()
     
