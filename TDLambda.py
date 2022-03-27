@@ -84,11 +84,19 @@ class TDLambda:
             observation, reward, done, info = self.env.step(action)
 
             # Update state with a and s'
-            newState = (round(observation[0], 2), round(observation[1], 2))
+            newPos = round(observation[0], 2)
+            newVel = round(observation[1], 2)
+            newState = (newPos, newVel)
 
             # Add s' to policy if new
             if newState not in self.policy.keys():
-                self.policy[newState] = State(pos, vel)
+                self.policy[newState] = State(newPos, newVel)
+
+            # Ensure reward is correct
+            if newPos >= 0.5:
+                reward = 0
+            else:
+                reward = -1
 
             self.updateBestAction(stateTuple, action, newState)
 
