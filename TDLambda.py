@@ -41,6 +41,7 @@ class TDLambda:
 
         self.wins = 0
         self.highestPoint = 0
+        self.fastest = 0
 
     def resetElig(self) -> None:
         for v in self.policy.values():
@@ -61,6 +62,7 @@ class TDLambda:
         done = False
         step = 0
         highest = -1.2
+        fastest = 0
 
         # Loop for each step
         while not done:
@@ -111,6 +113,10 @@ class TDLambda:
                 self.wins += 1
             if observation[0] > highest:
                 highest = observation[0]
+            if observation[1] > fastest:
+                fastest = observation[1]
+            
+            self.fastest = fastest
             self.highestPoint = highest
             step += 1
     
@@ -133,7 +139,7 @@ class TDLambda:
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
-            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
+            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, epsilon: {self.epsilon}, highest: {self.highestPoint}, fastest: {self.fastest}")
             self.epsilon *= 0.9999
         
         self.savePolicy()
