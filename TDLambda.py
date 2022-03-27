@@ -49,21 +49,7 @@ class TDLambda:
     def eGreedy(self, state: tuple) -> int:
         # Chance to explore or act greedy
         if random.random() < (1 - self.epsilon):
-            possibles =  self.policy[state].getNextStates()
-
-            # If possibles are empty then random move
-            if len(possibles) == 0:
-                return random.choice([0, 1, 2])
-
-            bestAction = 0
-            bestValue = -10000
-
-            for k, v in possibles.items():
-                if self.policy[v].getValue() > bestValue:
-                    bestValue = self.policy[v].getValue()
-                    bestAction = k
-            
-            return bestAction
+            return self.policy[state].getBestAction()
         else:
             return random.choice([0, 1, 2])
     
@@ -99,11 +85,12 @@ class TDLambda:
 
             # Update state with a and s'
             newState = (round(observation[0], 2), round(observation[1], 2))
-            self.updateNextStates(stateTuple, action, newState)
 
             # Add s' to policy if new
             if newState not in self.policy.keys():
                 self.policy[newState] = State(pos, vel)
+
+            self.updateBestAction(stateTuple, action, newState)
 
             # Add Step object to episode
             self.episode.append(Step(stateTuple, action, reward))
@@ -133,8 +120,9 @@ class TDLambda:
             s.updateValuePreDelta(self.alpha, delta)
             s.updateElig(self.gamma, self.lam, False)
     
-    def updateNextStates(self, stateTuple: tuple, action: int, nextState: tuple) -> None:
-        self.policy[stateTuple].addNextState(action, nextState)
+    def updateBestAction(self, stateTuple: tuple, action: int, nextState: tuple) -> None:
+        nextStateValue = self.policy[nextState].getValue()
+        self.policy[stateTuple].updateBestAction(action, nextStateValue)
 
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):

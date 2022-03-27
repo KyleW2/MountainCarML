@@ -1,3 +1,4 @@
+import random
 
 class State:
     def __init__(self, position: float, velocity: float) -> None:
@@ -8,17 +9,22 @@ class State:
 
         # Keys: int = 0, 1, 2 (the move that lead to the state)
         # Values: tuple = state tuple
-        self.nextStates = {}
+        self.bestAction = -1
+        self.bestValue = 0
     
     def __str__(self) -> str:
         return "(" + str(self.position) + ", " + str(self.velocity) + ")"
     
-    def addNextState(self, a: int, s: tuple) -> None:
-        """ 
-        if a in self.nextStates.keys() and not s == self.nextStates[a]:
-            print("\nOver-writing a states list of next states!!!\n")
-        """
-        self.nextStates[a] = s
+    def updateBestAction(self, a: int, value: tuple) -> None:
+        if value > self.bestValue:
+            self.bestAction = a
+            self.bestValue = value
+    
+    def getBestAction(self) -> int:
+        if self.bestAction == -1:
+            return random.choice([0, 1, 2])
+            
+        return self.bestAction
     
     def getNextStates(self) -> dict:
         return self.nextStates
