@@ -1,12 +1,10 @@
 import pickle
+from turtle import color
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plotActionPolicy(filename):
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+def plotActionPolicy(filename, ax):
     f = open(filename, "rb")
     policy = pickle.load(f)
 
@@ -25,13 +23,9 @@ def plotActionPolicy(filename):
 
     #X, Y = np.meshgrid(x, y)
     #Z = f(x,y)
-    ax.scatter(x, y, z)
-    plt.show()
+    ax.scatter(x, y, z, edgecolors='blue')
 
-def plotStatePolicy(filename):
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+def plotStatePolicy(filename, ax):
     f = open(filename, "rb")
     policy = pickle.load(f)
 
@@ -50,11 +44,13 @@ def plotStatePolicy(filename):
 
     #X, Y = np.meshgrid(x, y)
     #Z = f(x,y)
-    ax.scatter(x, y, z)
-    plt.show()
+    ax.scatter(x, y, z, edgecolors='red')
+    
 
 sarsaFile = 'Sarsa_policy.pickle'
 tdFile = 'TD_policy.pickle'
-
-plotActionPolicy(sarsaFile)
-plotStatePolicy(tdFile)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+plotActionPolicy(sarsaFile, ax)
+plotStatePolicy(tdFile, ax)
+plt.show()
