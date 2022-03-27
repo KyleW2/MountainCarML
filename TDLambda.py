@@ -108,9 +108,7 @@ class TDLambda:
     
     def updateStateValues(self, reward, newState, currentState) -> None:
         # Calculate delta
-        delta = reward
-        delta += (self.gamma * self.policy[newState].getValue()) 
-        delta -= self.policy[currentState].getValue()
+        delta = reward + (self.gamma * self.policy[newState].getValue()) - self.policy[currentState].getValue()
 
         # Update eligiblity trace for current state
         self.policy[currentState].updateElig(self.gamma, self.lam, True)
@@ -128,7 +126,7 @@ class TDLambda:
         for i in range(0, episodes):
             self.runEpisode()
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
-            self.epsilon = 2.718281 ** (-0.25 * self.epsilon)
+            self.epsilon *= 0.9999
         
         self.savePolicy()
     
