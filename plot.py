@@ -19,7 +19,7 @@ def plotActionPolicy(filename, ax):
     for state in policy.values():
         x.append(state.position)
         y.append(state.velocity)
-        z.append(-state.actionValues[state.getMaxAction()])
+        z.append(state.actionValues[state.getMaxAction()])
 
     #X, Y = np.meshgrid(x, y)
     #Z = f(x,y)
@@ -40,7 +40,7 @@ def plotStatePolicy(filename, ax):
     for state in policy.values():
         x.append(state.position)
         y.append(state.velocity)
-        z.append(-state.getValue())
+        z.append(state.getValue())
 
     #X, Y = np.meshgrid(x, y)
     #Z = f(x,y)
