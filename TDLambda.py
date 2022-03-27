@@ -127,7 +127,8 @@ class TDLambda:
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
-            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, highest: {self.highestPoint}")
+            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
+            self.epsilon *= 0.9999
         
         self.savePolicy()
     
