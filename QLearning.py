@@ -54,7 +54,8 @@ class QLearning:
     
     def updateQ(self, stateTuple: tuple, action: int, reward: int, newState: tuple):
         currentQ = self.policy[stateTuple].getActionValue(action)
-        maxNextQ = self.policy[newState].getMaxAction()
+        maxA = self.policy[newState].getMaxAction()
+        maxNextQ = self.policy[newState].getActionValue(maxA)
 
         newValue = self.alpha * (reward + (self.gamma * maxNextQ) - currentQ)
 
@@ -121,7 +122,7 @@ class QLearning:
         for i in range(0, episodes):
             self.runEpisode()
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}")
-            self.epsilon *= 0.9999
+            self.epsilon *= 0.999
         
         self.savePolicy()
     
