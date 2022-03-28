@@ -166,7 +166,7 @@ def main():
     # Define the state arrays for velocity and position
     tot_action = 3  # Three possible actions
     tot_bins = 12  # the value used to discretize the space
-    velocity_state_array = np.linspace(-1.5, +1.5, num=tot_bins-1, endpoint=False)
+    velocity_state_array = np.linspace(-0.7, +0.7, num=tot_bins-1, endpoint=False)
     position_state_array = np.linspace(-1.2, +0.5, num=tot_bins-1, endpoint=False)
 
     # Random policy as a square matrix of size (tot_bins x tot_bins)

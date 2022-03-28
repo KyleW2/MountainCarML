@@ -71,7 +71,7 @@ class TDLambda:
                 self.env.render()
 
             # Create tuple representing current state
-            pos = round(observation[0], 2)
+            pos = round(observation[0], 1)
             vel = round(observation[1], 2)
             stateTuple = (pos, vel)
 
@@ -86,7 +86,7 @@ class TDLambda:
             observation, reward, done, info = self.env.step(action)
 
             # Update state with a and s'
-            newPos = round(observation[0], 2)
+            newPos = round(observation[0], 1)
             newVel = round(observation[1], 2)
             newState = (newPos, newVel)
 

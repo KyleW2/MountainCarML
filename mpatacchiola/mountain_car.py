@@ -114,7 +114,7 @@ class MountainCar:
         """
         # Plot init
         fig = plt.figure()
-        ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1.2, 0.5), ylim=(-1.1, 1.1))
+        ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1.2, 0.5), ylim=(-0.7, 0.7))
         ax.grid(False)  # disable the grid
         x_sin = np.linspace(start=-1.2, stop=0.5, num=100)
         y_sin = np.sin(3 * x_sin)
