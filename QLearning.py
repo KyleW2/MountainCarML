@@ -2,25 +2,25 @@ import gym
 import random
 import pickle as pickler
 
-from State import State
+from QState import QState
 from Step import Step
 
-class TDLambda:
-    def __init__(self, lam: float, alpha: float, gamma: float, epsilon: float, render = False, pickle = False, pickleFile = None, load = False):
+class QLearning:
+    def __init__(self, alpha: float, gamma: float, epsilon: float, render = False, pickle = False, pickleFile = None, load = False) -> None:
         self.env = gym.make("MountainCar-v0")
         
-        self.lam = lam
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
 
-        self.render = render
-
         # Keys: tuple = (pos, vel)
         # Value: State = State()
         self.policy = {}
+
+        self.render = render
         self.pickle = pickle
 
+        # Pickle stuff
         if self.pickle:
             self.pickleFile = pickleFile
 
@@ -39,30 +39,35 @@ class TDLambda:
         # Reset each time
         self.episode = []
 
+        # Metrics
         self.wins = 0
         self.highestPoint = 0
-        self.fastest = 0
-
-    def resetElig(self) -> None:
-        for v in self.policy.values():
-            v.resetElig()
     
-    def eGreedy(self, state: tuple) -> int:
-        # Chance to explore or act greedy
+    def eGreey(self, state: tuple):
+        # Chance to be greedy
         if random.random() < (1 - self.epsilon):
-            return self.policy[state].getBestAction()
+            # Return max action
+            return self.policy[state].getMaxAction()
+        # Explore with random action
         else:
             return random.choice([0, 1, 2])
     
+    def updateQ(self, stateTuple: tuple, action: int, reward: int, newState: tuple):
+        currentQ = self.policy[stateTuple].getActionValue(action)
+        maxA = self.policy[newState].getMaxAction()
+        maxNextQ = self.policy[newState].getActionValue(maxA)
+
+        newValue = self.alpha * (reward + (self.gamma * maxNextQ) - currentQ)
+
+        self.policy[stateTuple].updateActionValue(action, newValue)
+    
     def runEpisode(self) -> None:
-        # Reset stuff that needs to be reset
+        # Reset the stuff
         self.episode = []
-        self.resetElig()
         observation = self.env.reset()
         done = False
-        step = 0
+        steps = 0
         highest = -1.2
-        fastest = 0
 
         # Loop for each step
         while not done:
@@ -77,22 +82,21 @@ class TDLambda:
 
             # Add state to policy if new
             if stateTuple not in self.policy.keys():
-                self.policy[stateTuple] = State(pos, vel)
+                self.policy[stateTuple] = QState(pos, vel)
+            
+            # Find next action using e-greedy
+            action = self.eGreey(stateTuple)
 
-            # Find next action using e-greedy policy
-            action = self.eGreedy(stateTuple)
-
-            # Take action a and observe r, s'
+            # Observe r and s'
             observation, reward, done, info = self.env.step(action)
 
-            # Update state with a and s'
+            # Make tuple for s' and add to policy if new
             newPos = round(observation[0], 2)
             newVel = round(observation[1], 2)
             newState = (newPos, newVel)
 
-            # Add s' to policy if new
             if newState not in self.policy.keys():
-                self.policy[newState] = State(newPos, newVel)
+                self.policy[newState] = QState(newPos, newVel)
 
             # Ensure reward is correct
             if newPos >= 0.5:
@@ -100,47 +104,25 @@ class TDLambda:
             else:
                 reward = -1
 
-            self.updateBestAction(stateTuple, action, newState)
+            # Update Q(S, A) using s' and a'
+            self.updateQ(stateTuple, action, reward, newState)
 
-            # Add Step object to episode
+            # Add step to episode
             self.episode.append(Step(stateTuple, action, reward))
 
-            # Update values and eligiblity traces for all s
-            self.updateStateValues(reward, newState, stateTuple)
-
             # Metrics
-            if reward == 0:
+            if reward == 0 and done:
                 self.wins += 1
             if observation[0] > highest:
                 highest = observation[0]
-            if observation[1] > fastest:
-                fastest = observation[1]
-            
-            self.fastest = fastest
             self.highestPoint = highest
-            step += 1
-    
-    def updateStateValues(self, reward, newState, currentState) -> None:
-        # Calculate delta
-        delta = reward + (self.gamma * self.policy[newState].getValue()) - self.policy[currentState].getValue()
-
-        # Update eligiblity trace for current state
-        self.policy[currentState].updateElig(self.gamma, self.lam, True)
-
-        # Loop thru all states and update
-        for s in self.policy.values():
-            s.updateValuePreDelta(self.alpha, delta)
-            s.updateElig(self.gamma, self.lam, False)
-    
-    def updateBestAction(self, stateTuple: tuple, action: int, nextState: tuple) -> None:
-        nextStateValue = self.policy[nextState].getValue()
-        self.policy[stateTuple].updateBestAction(action, nextStateValue)
+            steps += 1
 
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
-            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, epsilon: {self.epsilon}, highest: {self.highestPoint}, fastest: {self.fastest}")
-            self.epsilon *= 0.9999
+            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}")
+            self.epsilon *= 0.999
         
         self.savePolicy()
     
