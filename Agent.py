@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # explore: int, 0 < explore < 200
     #
     #                     alpha, explore, epsilon
-    agentMCQ = MonteCarloQ(0.05, 10, 0.0, render = False, pickle = True, pickleFile = "Policies/MCQ_policy.pickle", load = False)
+    agentMCQ = MonteCarloQ(0.05, 10, 1.0, render = False, pickle = True, pickleFile = "Policies/MCQ_policy.pickle", load = False)
 
     try:
         agentMCQ.runSeries(100000)
