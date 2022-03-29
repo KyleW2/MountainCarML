@@ -127,9 +127,9 @@ class MonteCarloQ:
             self.runEpisode()
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
             
-            if i > 5000:
+            if i > 3000:
                 self.epsilon *= 0.999
-            if i > 12000:
+            if i > 10000:
                 self.epsilon = 0.0
         
         self.savePolicy()

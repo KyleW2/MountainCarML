@@ -6,7 +6,7 @@ from MonteCarlo import MonteCarlo
 from MonteCarloQ import MonteCarloQ
 
 if __name__ == "__main__":
-    agentMC = MonteCarloQ(0.05, 0.999, 0.0, render = False, pickle = True, pickleFile = "MC_policy.pickle", load = True)
+    agentMC = MonteCarloQ(0.05, 0.999, 0.0, render = False, pickle = True, pickleFile = "Policies/MCQ_policy.pickle", load = False)
 
     try:
         agentMC.runSeries(100000)
