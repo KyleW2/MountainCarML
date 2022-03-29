@@ -6,11 +6,11 @@ from MCQState import MCQState
 from Step import Step
 
 class MonteCarloQ:
-    def __init__(self, alpha: float, gamma: float, epsilon: float, render = False, pickle = False, pickleFile = None, load = False) -> None:
+    def __init__(self, alpha: float, explore: float, epsilon: float, render = False, pickle = False, pickleFile = None, load = False) -> None:
         self.env = gym.make("MountainCar-v0")
         
         self.alpha = alpha
-        self.gamma = gamma
+        self.explore = explore
         self.epsilon = epsilon
 
         # Keys: tuple = (pos, vel)
@@ -50,7 +50,10 @@ class MonteCarloQ:
             return self.policy[state].getMaxAction()
         # Explore with random action
         else:
-            return random.choice([0, 1, 2])
+            return random.choice([0, 2])
+    
+    def randomAction(self) -> int:
+        return random.choice([0, 2])
     
     def updateV(self):
         # Nest for loops uh-oh!
@@ -79,7 +82,7 @@ class MonteCarloQ:
         self.episode = []
         observation = self.env.reset()
         done = False
-        steps = 0
+        step = 0
         highest = -1.2
 
         # Loop for each step
@@ -100,6 +103,9 @@ class MonteCarloQ:
             # Find next action using e-greedy
             action = self.eGreey(stateTuple)
 
+            if step <= self.explore:
+                action = self.randomAction()
+
             # Observe r and s'
             observation, reward, done, info = self.env.step(action)
 
@@ -118,7 +124,7 @@ class MonteCarloQ:
             if observation[0] > highest:
                 highest = observation[0]
             self.highestPoint = highest
-            steps += 1
+            step += 1
         
         self.updateV()
 
@@ -127,10 +133,7 @@ class MonteCarloQ:
             self.runEpisode()
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
             
-            if i > 3000:
-                self.epsilon *= 0.999
-            if i > 10000:
-                self.epsilon = 0.0
+            self.epsilon *= 0.9999
         
         self.savePolicy()
     

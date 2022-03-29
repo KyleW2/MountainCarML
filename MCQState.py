@@ -5,10 +5,10 @@ class MCQState:
         self.position = position
         self.velocity = velocity
 
-        self.returns = {0: [], 1: [], 2: []}
-        self.sumOfReturns = {0: 0, 1: 0, 2: 0}
+        self.returns = {0: [], 2: []}
+        self.sumOfReturns = {0: 0, 2: 0}
 
-        self.actionValues = {0: 0, 1: 0, 2: 0}
+        self.actionValues = {0: 0, 2: 0}
     
     def __str__(self) -> str:
         return "(" + str(self.position) + ", " + str(self.velocity) + ")"
@@ -35,7 +35,7 @@ class MCQState:
     def updateValue(self, action: int, alpha: float) -> None:
         '''
         # NOT a += just =
-        self.value = self.sumOfReturns / len(self.returns)
+        self.actionValues[action] = self.sumOfReturns[action] / len(self.returns[action])
         '''
         # Chaning to profs update funtion
         g = self.sumOfReturns[action] / len(self.returns[action])
