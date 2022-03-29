@@ -50,7 +50,7 @@ class MonteCarlo:
             return self.policy[state].getBestAction()
         # Explore with random action
         else:
-            return random.choice([0, 1, 2])
+            return random.choice([0, 2])
     
     def updateV(self):
         # Nest for loops uh-oh!
@@ -65,10 +65,10 @@ class MonteCarlo:
                 r = 0
                 for j in range(i, len(self.episode)):
                     r += self.episode[j].getReward()
-                
+
                 # Append r to s's returns
                 self.policy[stateTuple].updateReturns(r)
-                self.policy[stateTuple]
+                self.policy[stateTuple].updateValue(self.alpha)
 
                 # Added to list of visited states
                 alreadyVisited.append(stateTuple)
@@ -98,7 +98,7 @@ class MonteCarlo:
                 self.env.render()
 
             # Create tuple representing current state
-            pos = round(observation[0], 2)
+            pos = round(observation[0], 1)
             vel = round(observation[1], 2)
             stateTuple = (pos, vel)
 
@@ -134,8 +134,12 @@ class MonteCarlo:
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
-            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}")
-            self.epsilon *= 0.999
+            print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}, highest: {self.highestPoint}")
+            
+            if i > 5000:
+                self.epsilon *= 0.999
+            if i > 12000:
+                self.epsilon = 0.0
         
         self.savePolicy()
     

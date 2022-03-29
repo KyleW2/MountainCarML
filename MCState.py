@@ -22,7 +22,7 @@ class MCState:
     
     def getBestAction(self) -> int:
         if self.bestAction == -1:
-            return random.choice([0, 1, 2])
+            return random.choice([0, 2])
             
         return self.bestAction
     
@@ -34,6 +34,11 @@ class MCState:
     def getValue(self) -> float:
         return self.value
     
-    def updateValue(self) -> None:
+    def updateValue(self, alpha) -> None:
+        '''
         # NOT a += just =
         self.value = self.sumOfReturns / len(self.returns)
+        '''
+        # Chaning to profs update funtion
+        g = self.sumOfReturns / len(self.returns)
+        self.value += alpha * (g - self.value)
