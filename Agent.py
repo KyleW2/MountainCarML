@@ -6,6 +6,7 @@ from MonteCarlo import MonteCarlo
 from MonteCarloQ import MonteCarloQ
 import plot
 import pickle as pickler
+
 def saveResults(results, pickleFile) -> None:
     f = open(pickleFile, "wb")
     pickler.dump(results, f)
@@ -19,10 +20,10 @@ def runSarsas(alphas, gamma, epsilon, iters):
             agents.append(Sarsa(alphas[i], gamma, epsilon, False, None, False))
             agents[i].runSeries(iters)
             rewardLists.append(agents[i].rewards)
-        saveResults((alphas, rewardLists), "SarsaResults.pickle")
+        saveResults((alphas, rewardLists), "FinalSarsaResults.pickle")
         return rewardLists
     except KeyboardInterrupt:
-        saveResults((alphas,rewardLists), "SarsaResultsInterupt.pickle")
+        saveResults((alphas,rewardLists), "FinalSarsaResultsInterupt.pickle")
         print("Closed!")
 
 def runMCQ(alphas, gamma, epsilon, iters):
@@ -33,10 +34,10 @@ def runMCQ(alphas, gamma, epsilon, iters):
             agents.append(MonteCarloQ(alphas[i], 10, epsilon, False, None, False))
             agents[i].runSeries(iters)
             rewardLists.append(agents[i].rewards)
-        saveResults((alphas, rewardLists), "QResults.pickle")
+        saveResults((alphas, rewardLists), "FinalQResults.pickle")
         return rewardLists
     except KeyboardInterrupt:
-        saveResults((alphas,rewardLists), "QResultsInterupt.pickle")
+        saveResults((alphas,rewardLists), "FinalQResultsInterupt.pickle")
         print("Closed!")
 
 def runQ(alphas, gamma, epsilon, iters):
@@ -47,10 +48,10 @@ def runQ(alphas, gamma, epsilon, iters):
             agents.append(QLearning(alphas[i], gamma, epsilon, False, None, False))
             agents[i].runSeries(iters)
             rewardLists.append(agents[i].rewards)
-        saveResults((alphas, rewardLists), "MCQResults.pickle")
+        saveResults((alphas, rewardLists), "FinalMCQResults.pickle")
         return rewardLists
     except KeyboardInterrupt:
-        saveResults((alphas,rewardLists), "MCQResultsInterupt.pickle")
+        saveResults((alphas,rewardLists), "FinalMCQResultsInterupt.pickle")
         print("Closed!")
 
 def plotRewards(rewardLists, filepath):
@@ -64,6 +65,6 @@ if __name__ == "__main__":
     sarsaRewards = runSarsas(alphas, gamma, epsilon, iters)
     qRewards = runQ(alphas, gamma, epsilon, iters)
     mcqRewards = runMCQ(alphas, gamma, epsilon, iters)
-    plotRewards(sarsaRewards, "Sarsa.png")
-    plotRewards(qRewards, "Q.png")
-    plotRewards(mcqRewards, "MCQ.png")
+    plotRewards(sarsaRewards, "FinalSarsa.png")
+    plotRewards(qRewards, "FinalQ.png")
+    plotRewards(mcqRewards, "FinalMCQ.png")

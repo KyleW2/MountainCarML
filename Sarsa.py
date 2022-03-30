@@ -44,7 +44,7 @@ class Sarsa:
         self.wins = 0
         self.highestPoint = 0
         self.rewards = []
-        
+
     def eGreedy(self, state: tuple):
         # Chance to be greedy
         if random.random() < (1 - self.epsilon):
@@ -127,9 +127,8 @@ class Sarsa:
     def runSeries(self, episodes: int) -> None:
         for i in range(0, episodes):
             self.runEpisode()
-            if self.epsilon > .1: self.epsilon = .9999*self.epsilon
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}")
-        
+            if self.epsilon > .1: self.epsilon = .9999*self.epsilon
         self.savePolicy()
     
     def savePolicy(self) -> None:
