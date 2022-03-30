@@ -20,6 +20,7 @@ def runSarsas(alphas, gamma, epsilon, iters):
             agents[i].runSeries(iters)
             rewardLists.append(agents[i].rewards)
         saveResults((alphas, rewardLists), "SarsaResults.pickle")
+        return rewardLists
     except KeyboardInterrupt:
         saveResults((alphas,rewardLists), "SarsaResultsInterupt.pickle")
         print("Closed!")
@@ -33,6 +34,7 @@ def runMCQ(alphas, gamma, epsilon, iters):
             agents[i].runSeries(iters)
             rewardLists.append(agents[i].rewards)
         saveResults((alphas, rewardLists), "QResults.pickle")
+        return rewardLists
     except KeyboardInterrupt:
         saveResults((alphas,rewardLists), "QResultsInterupt.pickle")
         print("Closed!")
@@ -46,18 +48,22 @@ def runQ(alphas, gamma, epsilon, iters):
             agents[i].runSeries(iters)
             rewardLists.append(agents[i].rewards)
         saveResults((alphas, rewardLists), "MCQResults.pickle")
+        return rewardLists
     except KeyboardInterrupt:
         saveResults((alphas,rewardLists), "MCQResultsInterupt.pickle")
         print("Closed!")
 
-def plotRewards(rewardLists):
-    plot.plot_curves(rewardLists, alphas, filepath="./Sarsa3.png", x_label="Episode", y_label="Reward", color="red", kernel_size=500, grid=True)
+def plotRewards(rewardLists, filepath):
+    plot.plot_curves(rewardLists, alphas, filepath=filepath, x_label="Episode", y_label="Reward", color="red", kernel_size=500, grid=True)
 
 if __name__ == "__main__":
     iters = 100000
     gamma = .999
     alphas = [.001, .01, .1, .5, .9]
     epsilon = 1
-    runSarsas(alphas, gamma, epsilon, iters)
-    runQ(alphas, gamma, epsilon, iters)
-    runMCQ(alphas, gamma, epsilon, iters)
+    sarsaRewards = runSarsas(alphas, gamma, epsilon, iters)
+    qRewards = runQ(alphas, gamma, epsilon, iters)
+    mcqRewards = runMCQ(alphas, gamma, epsilon, iters)
+    plotRewards(sarsaRewards, "Sarsa.png")
+    plotRewards(qRewards, "Q.png")
+    plotRewards(mcqRewards, "MCQ.png")
