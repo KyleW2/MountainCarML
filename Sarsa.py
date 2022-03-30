@@ -43,8 +43,9 @@ class Sarsa:
         # Metrics
         self.wins = 0
         self.highestPoint = 0
-    
-    def eGreey(self, state: tuple):
+        self.rewards = []
+        
+    def eGreedy(self, state: tuple):
         # Chance to be greedy
         if random.random() < (1 - self.epsilon):
             # Return max action
@@ -59,6 +60,7 @@ class Sarsa:
         newValue = self.alpha * (reward + (self.gamma * nextQ) - currentQ)
 
         self.policy[stateTuple].updateActionValue(action, newValue)
+        return newValue - currentQ
     
     def runEpisode(self) -> None:
         # Reset the stuff
@@ -84,7 +86,7 @@ class Sarsa:
                 self.policy[stateTuple] = QState(pos, vel)
             
             # Find next action using e-greedy
-            action = self.eGreey(stateTuple)
+            action = self.eGreedy(stateTuple)
 
             # Observe r and s'
             observation, reward, done, info = self.env.step(action)
@@ -104,11 +106,11 @@ class Sarsa:
                 reward = -1
 
             # Choose a' from s'
-            newAction = self.eGreey(newState)
+            newAction = self.eGreedy(newState)
 
             # Update Q(S, A) using s' and a'
-            self.updateQ(stateTuple, action, reward, newState, newAction)
-
+            qChange = self.updateQ(stateTuple, action, reward, newState, newAction)
+            #print("Q Change is :",qChange)
             # Add step to episode
             self.episode.append(Step(stateTuple, action, reward))
             
@@ -120,48 +122,15 @@ class Sarsa:
             self.highestPoint = highest
             steps += 1
             cumulative_reward += reward
-        return cumulative_reward
-    def plot_curve(data_list, filepath="./my_plot.png",
-               x_label="X", y_label="Y",
-               x_range=(0, 1), y_range=(0,1), color="-r", kernel_size=50, alpha=0.4, grid=True):
-        """Plot a graph using matplotlib
-
-        """
-        if(len(data_list) <=1):
-            print("[WARNING] the data list is empty, no plot will be saved.")
-            return
-        fig = plt.figure()
-        ax = fig.add_subplot(111, autoscale_on=True)
-        ax.grid(grid)
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-        ax.plot(data_list, color, alpha=alpha)  # The original data is showed in background
-        kernel = np.ones(int(kernel_size))/float(kernel_size)  # Smooth the graph using a convolution
-        tot_data = len(data_list)
-        lower_boundary = int(kernel_size/2.0)
-        upper_boundary = int(tot_data-(kernel_size/2.0))
-        data_convolved_array = np.convolve(data_list, kernel, 'same')[lower_boundary:upper_boundary]
-        #print("arange: " + str(np.arange(tot_data)[lower_boundary:upper_boundary]))
-        #print("Convolved: " + str(np.arange(tot_data).shape))
-        ax.plot(np.arange(tot_data)[lower_boundary:upper_boundary], data_convolved_array, color, alpha=1.0)  # Convolved plot
-        fig.savefig(filepath)
-        fig.clear()
-        plt.close(fig)
-        # print(plt.get_fignums())  # print the number of figures opened in background
+        self.rewards.append(cumulative_reward)
 
     def runSeries(self, episodes: int) -> None:
-        rewards = list()
         for i in range(0, episodes):
-            rewards.append(self.runEpisode())
+            self.runEpisode()
             if self.epsilon > .1: self.epsilon = .9999*self.epsilon
             print(f"episode: {i}, visited: {len(self.policy.keys())}, wins: {self.wins}, win rate: {self.wins/(i+1)}, epsilon: {self.epsilon}")
         
         self.savePolicy()
-        Sarsa.plot_curve(rewards, filepath="./reward.png",
-            x_label="Episode", y_label="Reward",
-            x_range=(0, len(rewards)), y_range=(-3.1,0.1),
-            color="red", kernel_size=500,
-            alpha=0.4, grid=True)
     
     def savePolicy(self) -> None:
         if self.pickle:
