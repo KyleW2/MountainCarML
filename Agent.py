@@ -56,7 +56,7 @@ def plotRewards(rewardLists):
 if __name__ == "__main__":
     iters = 100000
     gamma = .999
-    alphas = [.001, .01, .1, .9]
+    alphas = [.001, .01, .1, .5, .9]
     epsilon = 1
     runSarsas(alphas, gamma, epsilon, iters)
     runQ(alphas, gamma, epsilon, iters)
